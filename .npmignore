@@ -23,9 +23,9 @@ classes/
 *.tern-project
 **/.DS_Store
 dump.rdb
-packages/*/lib
-npm-debug.log.*
-**/docs
+src
+test
+package.js
+.nyc_output/
 .npmrc
 package-lock.json
-.nyc_output/

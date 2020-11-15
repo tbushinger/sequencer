@@ -1,0 +1,15 @@
+{
+    "extends": "./tsconfig.settings.json",
+    "references": [
+        {
+          "path": "./packages/sequencer-models"
+        }
+     ],
+    "exclude": [
+        ".vscode",
+        "dist",
+        "lib",
+        "node_modules",
+        "benchmark"
+      ]
+  }

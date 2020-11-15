@@ -1,0 +1,55 @@
+{
+  "name": "sequencer",
+  "workspaces": [
+    "packages/*"
+  ],
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "clean": "lerna exec --parallel --stream -- rimraf ./lib tsconfig.tsbuildinfo",
+    "clean:test": "lerna exec --parallel --stream -- rimraf coverage .nyc_output",
+    "clean:dep": "lerna clean && lerna exec --parallel --stream -- rimraf package-lock.json",
+    "lint": "lerna exec --parallel --stream -- tslint -c \\$LERNA_ROOT_PATH/tslint.json 'src/**/*.ts'",
+    "build": "npm run clean && lerna exec --stream -- cross-env NODE_ENV=production tsc -b ./tsconfig.json",
+    "test": "npm run clean:test && lerna exec --parallel --stream -- cross-env NODE_ENV=test TS_NODE_PROJECT=./tsconfig.test.json nyc mocha",
+    "doc": "rimraf docs && typedoc --excludeProtected --excludePrivate --out docs && touch docs/.nojekyll",
+    "bootstrap": "lerna exec --parallel --stream -- rimraf ./package-lock.json && lerna link && lerna bootstrap",
+    "bootstrap:hoist": "lerna bootstrap --hoist",
+    "new": "hygen package new",
+    "fmt": "lerna exec -- prettier --config ../../.prettierrc.yaml --write {src,test}/**/*.{ts,tsx}"
+  },
+  "author": "tbushinger",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "ttps://registry.npmjs.org/"
+  },
+  "private": false,
+  "dependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/estree": "0.0.39",
+    "@types/lodash": "^4.14.132",
+    "@types/mocha": "^5.2.6",
+    "@types/sinon": "^7.0.11",
+    "chai": "^4.2.0",
+    "cross-env": "^5.2.0",
+    "husky": "^2.3.0",
+    "hygen": "^4.0.2",
+    "lerna": "^3.22.1",
+    "mocha": "^6.1.4",
+    "mocha-lcov-reporter": "^1.3.0",
+    "nyc": "^14.1.1",
+    "prettier": "^1.17.1",
+    "rimraf": "^2.6.3",
+    "sinon": "^7.3.2",
+    "source-map-support": "^0.5.12",
+    "ts-node": "^8.2.0",
+    "tslint": "^5.16.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-no-unused-expression-chai": "^0.1.4",
+    "typedoc": "^0.19.1",
+    "typedoc-plugin-markdown": "^1.2.1",
+    "typescript": "^3.5.1"
+  }
+}

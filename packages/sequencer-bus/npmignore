@@ -1,0 +1,6 @@
+.nyc_output
+coverage
+src
+node_modules
+test
+tsconfig.*
