@@ -96,7 +96,11 @@ export class LocalMessageBus implements MessageBus {
         return () => {
             const _handlers = this.topicHandlers[topic] || [];
             const _updatedHandlers = _handlers.filter((sub) => sub.id !== id);
-            this.topicHandlers[topic] = _updatedHandlers;
+            if (_updatedHandlers.length === 0) {
+                delete this.topicHandlers[topic];
+            } else {
+                this.topicHandlers[topic] = _updatedHandlers;
+            }
         }
     }
 
