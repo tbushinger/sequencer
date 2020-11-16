@@ -1,12 +1,12 @@
 import { createId, createTs } from "../ids";
 import { Message } from "../types";
 
-export function createMessage<T>(
+export function createMessage(
     userId: string,
     topic: string,
     command: string,
-    data: T,
-): Message<T> {
+    data: any,
+): Message {
     return {
         userId,
         topic,

@@ -11,7 +11,8 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "dependencies": {
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.10",
+    "sequencer-models": "1.0.0"
   },
   "peerDependencies": {
     "sequencer-models": "1.0.0"

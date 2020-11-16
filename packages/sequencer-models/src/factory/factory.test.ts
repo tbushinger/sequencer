@@ -5,7 +5,7 @@ import { Message } from "../types";
 describe("factory", () => {
     describe("createMessage", () => {
         it("should return message", () => {
-            const result: Message<string> = createMessage<string>(
+            const result: Message = createMessage(
                 "testUser",
                 "myTopic",
                 "myCommand",

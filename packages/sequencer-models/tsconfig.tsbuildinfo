@@ -136,11 +136,6 @@
         "signature": "89bf2b7a601b73ea4311eda9c41f86a58994fec1bee3b87c4a14d68d9adcdcbd",
         "affectsGlobalScope": true
       },
-      "./src/types.d.ts": {
-        "version": "2cf5550a884de399935e8d8795c9cd0bd42a4f065708acc3762eb74e1733e9a5",
-        "signature": "2cf5550a884de399935e8d8795c9cd0bd42a4f065708acc3762eb74e1733e9a5",
-        "affectsGlobalScope": false
-      },
       "./src/ids/ids.ts": {
         "version": "eef03a2079eb408fef027fa043817925fa60df89f6685974d1502752db7789fa",
         "signature": "ec93997fb617686f5869bc3c208925de9a318950329dbaaa3b4c145280a36b0a",
@@ -151,9 +146,14 @@
         "signature": "4598df353c3f4a8f717dd4bd34439b14138b5310e20e9a8abfccfc3705530d10",
         "affectsGlobalScope": false
       },
+      "./src/types.ts": {
+        "version": "6de6125b79b163ad07ab0c6556696454d7bf5d6820b045b2d20275b6ddbc7ee3",
+        "signature": "ec6fc656623fff516587b86e86a0f7c0685bbb880802355811f2c9307957bd3e",
+        "affectsGlobalScope": false
+      },
       "./src/factory/factory.ts": {
-        "version": "47b12ce76218ce1acf1a5a23cfd4632cc661d777d05fa68841904edde3c5a055",
-        "signature": "4dca0ef3b64fc289813e6160d475ac6c6e2ec0ca71a48ab77dbfe37b592ffa73",
+        "version": "f30b0f8a6062983c3b8c1a5ed522383e82a73b1931f18b802c1f59664ce8c332",
+        "signature": "7080bcbd7546b768399231f98ede792bfff4b466f6694c28bdc2fc274d0d1fa7",
         "affectsGlobalScope": false
       },
       "./src/factory/index.ts": {
@@ -161,9 +161,19 @@
         "signature": "f0a3d000e0bde44916a74c323b6b50cda0b10072a3fe62cf382f5d29f46c70c8",
         "affectsGlobalScope": false
       },
+      "./src/queue/queue.ts": {
+        "version": "ecaa47203fb6d1daec508b2375f8e65f8691282f66ad232eaf325c52a4c6cce4",
+        "signature": "4df98bd57446f227d630e59e0b8f6d11d83235d41bac67bce8b12d6168211afb",
+        "affectsGlobalScope": false
+      },
+      "./src/queue/index.ts": {
+        "version": "c8a4390f0d67337dd9a19bb031a64b8c981431b72fe72d1cd5421d5a288aa6d1",
+        "signature": "447bbeabc51beda9472bafd3f0b0cbd5e13b3761ad4d72cb5aaf6dd6e7853932",
+        "affectsGlobalScope": false
+      },
       "./src/index.ts": {
-        "version": "00b6a3e858e200e4ec4408bdaa59bca6c0d61448f380dda3668e11855f39c6c8",
-        "signature": "00b6a3e858e200e4ec4408bdaa59bca6c0d61448f380dda3668e11855f39c6c8",
+        "version": "97611742f25363e384a193a7677e37dae291f16fa309f55086f66d44116b918c",
+        "signature": "97611742f25363e384a193a7677e37dae291f16fa309f55086f66d44116b918c",
         "affectsGlobalScope": false
       },
       "../../node_modules/@types/mocha/index.d.ts": {
@@ -622,7 +632,7 @@
       ],
       "./src/factory/factory.ts": [
         "./src/ids/index.ts",
-        "./src/types.d.ts"
+        "./src/types.ts"
       ],
       "./src/factory/index.ts": [
         "./src/factory/factory.ts"
@@ -632,7 +642,15 @@
       ],
       "./src/index.ts": [
         "./src/factory/index.ts",
-        "./src/types.d.ts"
+        "./src/ids/index.ts",
+        "./src/queue/index.ts",
+        "./src/types.ts"
+      ],
+      "./src/queue/index.ts": [
+        "./src/queue/queue.ts"
+      ],
+      "./src/queue/queue.ts": [
+        "./src/types.ts"
       ]
     },
     "exportedModulesMap": {
@@ -804,7 +822,7 @@
         "../../node_modules/@types/node/stream.d.ts"
       ],
       "./src/factory/factory.ts": [
-        "./src/types.d.ts"
+        "./src/types.ts"
       ],
       "./src/factory/index.ts": [
         "./src/factory/factory.ts"
@@ -814,7 +832,15 @@
       ],
       "./src/index.ts": [
         "./src/factory/index.ts",
-        "./src/types.d.ts"
+        "./src/ids/index.ts",
+        "./src/queue/index.ts",
+        "./src/types.ts"
+      ],
+      "./src/queue/index.ts": [
+        "./src/queue/queue.ts"
+      ],
+      "./src/queue/queue.ts": [
+        "./src/types.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
@@ -899,7 +925,9 @@
       "./src/ids/ids.ts",
       "./src/ids/index.ts",
       "./src/index.ts",
-      "./src/types.d.ts"
+      "./src/queue/index.ts",
+      "./src/queue/queue.ts",
+      "./src/types.ts"
     ]
   },
   "version": "3.9.7"
