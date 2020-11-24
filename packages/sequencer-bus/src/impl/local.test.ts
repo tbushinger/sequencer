@@ -1,11 +1,11 @@
 import { assert } from 'chai';
-import { createLocalMessageBus } from "./local";
+import { Message, createMessage } from "sequencer-models";
 import { MessageBus } from "../types"
-import { createMessage, Message } from "sequencer-models";
+import { createLocalMessageBus } from "./local";
 
 describe("test", () => {
     const bus: MessageBus = createLocalMessageBus();
-    
+
     it("should create bus", () => {
         assert.isDefined(bus);
     });
@@ -20,15 +20,15 @@ describe("test", () => {
 
         bus.emit(message);
 
-        const unsubscribe = bus.on("myTopic", (result: Message) => {
-            assert.equal(result.topic, message.topic);
+        const unsubscribe = bus.on((result: Message) => {
+            assert.equal(result.data, message.data);
             unsubscribe();
             done();
         })
 
     })
 
-    it("should return 1 message for 2 topics", (done) => {
+    it("should return 2 messages", (done) => {
         let calls = 0;
 
         const message1: Message = createMessage(
@@ -45,23 +45,17 @@ describe("test", () => {
             "some data"
         );
 
-        const unsubscribe1 = bus.on("myTopic", (result: Message) => {
-            assert.equal(result.topic, message1.topic);
-            unsubscribe1();
+        const unsubscribe = bus.on((result: Message) => {
+            assert.equal(result.data, message1.data);
             calls += 1;
         })
 
         bus.emit(message1);
         bus.emit(message2);
 
-        const unsubscribe2 = bus.on("myTopic2", (result2: Message) => {
-            assert.equal(result2.topic, message2.topic);
-            unsubscribe2();
-            calls += 1;
-        })
-
         setTimeout(() => {
             assert.equal(calls, 2);
+            unsubscribe();
             done();
         }, 10);
 

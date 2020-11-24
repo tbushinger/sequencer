@@ -1,63 +1,43 @@
 import {
+    Message,
+    Messages,
     count,
     createId,
     dequeue,
-    enqueue,
-    Message,
-    Messages
+    enqueue
 } from "sequencer-models";
 import {
-    ErrorCallback,
-    MessageBus,
-    Subscription,
-    Unsubscribe
+    BusErrorCallback,
+    BusSubscription,
+    BusUnsubscribe,
+    MessageBus
 } from "../types";
 
-type SubHandler = {
+type BusMessageHandler = {
     id: string;
-    subscription: Subscription;
+    subscription: BusSubscription;
 }
 
-type SubHandlers = SubHandler[];
-
-type TopicHandlers = {
-    [topic: string]: SubHandlers;
-}
-
-type TopicMessages = {
-    [topic: string]: Messages;
-}
+type BusMessageHandlers = BusMessageHandler[];
 
 export class LocalMessageBus implements MessageBus {
-    private topicMessages: TopicMessages;
-    private topicHandlers: TopicHandlers;
-    private errorCallback: ErrorCallback = () => { };
+    private messages: Messages;
+    private handlers: BusMessageHandlers;
+    private errorCallback: BusErrorCallback = () => { };
 
     constructor() {
-        this.topicMessages = {};
-        this.topicHandlers = {};
-        this._handleTopic = this._handleTopic.bind(this);
+        this.messages = [];
+        this.handlers = [];
+        this._handleMessages = this._handleMessages.bind(this);
     }
 
-    private _handleTopic(): void {
-        Object.keys(this.topicHandlers).forEach((topic: string) => {
-            const subHandlers: SubHandlers = this.topicHandlers[topic] || [];
-            this._handleSubscriptions(subHandlers, topic);
-        })
-    }
-
-    private _handleSubscriptions(
-        subHandlers: SubHandlers,
-        topic: string,
-    ): void {
-        let topicMessages: Messages = this.topicMessages[topic] || [];
-
-        while (count(topicMessages) && subHandlers.length) {
-            const info = dequeue(topicMessages);
+    private _handleMessages(): void {
+        while (count(this.messages) && this.handlers.length) {
+            const info = dequeue(this.messages);
             const message: Message = info.message as Message;
-            topicMessages = info.messages;
+            this.messages = info.messages;
 
-            subHandlers.forEach((sub: any) => {
+            this.handlers.forEach((sub: any) => {
                 try {
                     sub.subscription(message);
                 } catch (err) {
@@ -65,58 +45,38 @@ export class LocalMessageBus implements MessageBus {
                 }
             });
         }
-
-        this.topicMessages[topic] = topicMessages;
     }
 
-    public process() {
-        setTimeout(this._handleTopic, 1);
+    public handleMessages(): void {
+        setTimeout(this._handleMessages, 1);
     }
 
     public emit(message: Message): void {
-        this.topicMessages[message.topic] =
-            enqueue(this.topicMessages[message.topic] || [], message);
+        this.messages = enqueue(this.messages, message);
 
-        this.process();
+        this.handleMessages();
     }
 
-    public on(topic: string, subscription: Subscription): Unsubscribe {
+    public on(subscription: BusSubscription): BusUnsubscribe {
         const id = createId();
-        const handlers: SubHandlers = this.topicHandlers[topic] || [];
 
-        handlers.push({
+        this.handlers.push({
             id,
             subscription,
         });
 
-        this.topicHandlers[topic] = handlers;
-
-        this.process();
+        this.handleMessages();
 
         return () => {
-            const _handlers = this.topicHandlers[topic] || [];
-            const _updatedHandlers = _handlers.filter((sub) => sub.id !== id);
-            if (_updatedHandlers.length === 0) {
-                delete this.topicHandlers[topic];
-            } else {
-                this.topicHandlers[topic] = _updatedHandlers;
-            }
+            this.handlers = this.handlers.filter((sub) => sub.id !== id);
         }
     }
 
-    onError(errorCallback: ErrorCallback): void {
+    public onError(errorCallback: BusErrorCallback): void {
         this.errorCallback = errorCallback;
     }
 }
 
-let instance: LocalMessageBus;
-
 export function createLocalMessageBus(): MessageBus {
-    if (instance) {
-        return instance;
-    }
-
-    instance = new LocalMessageBus();
-
-    return instance;
+    return new LocalMessageBus();
 }
