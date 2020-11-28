@@ -1,0 +1,24 @@
+{
+  "name": "sequencer-service",
+  "version": "1.0.0",
+  "description": "",
+  "author": "tbushinger",
+  "maintainers": [],
+  "license": "SEE LICENSE IN LICENSE",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "dependencies": {
+    "lodash": "^4.17.10",
+    "sequencer-models": "1.0.0",
+    "sequencer-store": "1.0.0",
+    "sequencer-bus": "1.0.0"
+  },
+  "peerDependencies": {
+    "sequencer-models": "1.0.0",
+    "sequencer-store": "1.0.0",
+    "sequencer-bus": "1.0.0"
+  }
+}
