@@ -217,13 +217,13 @@
         "affectsGlobalScope": false
       },
       "./src/types.ts": {
-        "version": "e97010e373081fb1a5771257a619cbfd086e19c4dbf679cce4f4ef329232d269",
-        "signature": "10f5c46de6290a0e771c36fdf14d375545a287c2ff9a8c0e29fdcca0dd719f10",
+        "version": "bfd2e51a5deff6defe6b6ebc4fddf76b6716032c0a4b71052ff79ab63fa0d4dd",
+        "signature": "b12255ff577d5c43800531a972564e49cbfed8b2311ff72351ab8d6153210f80",
         "affectsGlobalScope": false
       },
       "./src/impl/local.ts": {
-        "version": "ffcb0df51aac08a188e9eb227fc6b2d7581d5fde7c5c923df28dfd216a52c87c",
-        "signature": "92c9c6cc1c3bd0fa82527a87f3d3d9c6e3e37dd1ec6e69761023693b4ba2779c",
+        "version": "1e9d527a387fa2be4961765b2845c38569bb024b9c1589d206a9c9dcbb663066",
+        "signature": "5860c06aa715f489fa2f9cc28128c6b625a839b8ecb14b583ba3f9cecd288fd1",
         "affectsGlobalScope": false
       },
       "./src/impl/index.ts": {
