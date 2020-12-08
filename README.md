@@ -4,7 +4,6 @@
  * local client
  * Add Disposers
  * Commands should implement done function
- * Create a shared local message bus for local client/server
  * renaming to more descriptive/shorter names for brand
  * static functions for abstract factory methods
  * All class exports should be default

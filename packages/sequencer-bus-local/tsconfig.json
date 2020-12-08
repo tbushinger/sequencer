@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.settings.json",
+  "compilerOptions": {
+      "rootDir": "src",
+      "outDir": "lib"
+  },
+  "include": [
+      "./src",
+      "../../@types/**/*"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/fixtures/*"
+  ]
+}

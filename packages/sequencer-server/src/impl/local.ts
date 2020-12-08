@@ -1,4 +1,5 @@
 import { MessageBus } from "sequencer-bus";
+import { requestBus, responseBus } from "sequencer-bus-local";
 import {
     SequencerService,
     UnsubscribeService,
@@ -22,16 +23,13 @@ export default class LocalSequencerServer implements SequencerServer {
     private static instance: SequencerServer;
     private serviceFactory: SequencerService;
     private services: TopicServices = {};
-    private requestMessageBusRef: MessageBus;
-    private responseMessageBusRef: MessageBus;
+    private requestBus: MessageBus;
+    private responseBus: MessageBus;
 
-    constructor(
-        requestMessageBusRef: MessageBus,
-        responseMessageBusRef: MessageBus,
-    ) {
+    constructor() {
         this.serviceFactory = createLocalSequencerService();
-        this.requestMessageBusRef = requestMessageBusRef;
-        this.responseMessageBusRef = responseMessageBusRef;
+        this.requestBus = requestBus;
+        this.responseBus = responseBus;
     }
 
     public registerStore<T>(
@@ -44,8 +42,8 @@ export default class LocalSequencerServer implements SequencerServer {
             store,
             unsubscribeService: this.serviceFactory.register<T>(
                 topic,
-                this.requestMessageBusRef,
-                this.responseMessageBusRef,
+                this.requestBus,
+                this.responseBus,
                 store,
             ),
         };
@@ -68,18 +66,12 @@ export default class LocalSequencerServer implements SequencerServer {
         return this;
     }
 
-    public static createServer(
-        requestMessageBusRef: MessageBus,
-        responseMessageBusRef: MessageBus,
-    ): SequencerServer {
+    public static createServer(): SequencerServer {
         if (LocalSequencerServer.instance) {
             return LocalSequencerServer.instance;
         }
 
-        LocalSequencerServer.instance = new LocalSequencerServer(
-            requestMessageBusRef,
-            responseMessageBusRef,
-        );
+        LocalSequencerServer.instance = new LocalSequencerServer();
 
         return LocalSequencerServer.instance;
     }

@@ -1,7 +1,8 @@
 import { assert } from 'chai';
 import {
-    MessageBus, createLocalMessageBus
-} from "sequencer-bus";
+    requestBus,
+    responseBus
+} from "sequencer-bus-local";
 import { Message, createMessage } from "sequencer-models";
 import { SequencerServer } from "../types";
 import LocalServer from "./local";
@@ -21,10 +22,7 @@ describe("LocalStore", () => {
         },
     };
 
-    const responseBus: MessageBus = createLocalMessageBus();
-    const requestBus: MessageBus = createLocalMessageBus();
-
-    const server: SequencerServer = LocalServer.createServer(requestBus, responseBus);
+    const server: SequencerServer = LocalServer.createServer();
 
     server
         .registerStore(storeName, { id: "123", data: "my initial data"})
