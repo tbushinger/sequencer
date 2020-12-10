@@ -1,7 +1,6 @@
 # sequencer
 
 # TODO
- * local client
  * Add Disposers
  * Commands should implement done function
  * renaming to more descriptive/shorter names for brand
