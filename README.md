@@ -1,11 +1,22 @@
 # sequencer
 
 # TODO
+ * core
+   - deserialize
+   - observable
+ * entities
+   - primative
+   - map
+   - list
+   - tree
+   - queue
+  
  * Add Disposers
  * Commands should implement done function
  * renaming to more descriptive/shorter names for brand
  * static functions for abstract factory methods
  * All class exports should be default
+ * rename to topic
 
  * Redis server
  * Redis client
