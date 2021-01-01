@@ -1,15 +1,16 @@
 import {
     AttributeStrategy,
     BasicAttributes,
+    Deserializeable,
     Disposable,
-    Serializeable
+    Serializeable,
 } from '../../..';
 
 export const BaseStateKeys = {
-    value: "value",
-}
+    value: 'value',
+};
 
-export class BaseState implements Disposable, Serializeable {
+export class BaseState implements Deserializeable, Disposable, Serializeable {
     private attributes: AttributeStrategy;
 
     constructor(attributes: AttributeStrategy, value?: any) {
@@ -23,7 +24,7 @@ export class BaseState implements Disposable, Serializeable {
     }
 
     public setValue(value: any): BaseState {
-        this.attributes.set(BaseStateKeys.value, "any", value);
+        this.attributes.set(BaseStateKeys.value, 'any', value);
 
         return this;
     }
@@ -38,6 +39,12 @@ export class BaseState implements Disposable, Serializeable {
 
     public serialize(): any {
         return this.attributes.serialize();
+    }
+
+    public deserialize(payload: any): BaseState {
+        this.attributes.deserialize(payload);
+
+        return this;
     }
 
     public dispose() {

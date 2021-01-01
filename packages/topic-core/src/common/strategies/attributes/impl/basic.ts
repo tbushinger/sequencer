@@ -1,16 +1,23 @@
 import { has } from 'lodash';
-import { Attributes, AttributeType } from '../../../types/attribute';
 import {
+    BasicAttributesDeserializationStrategy,
     BasicAttributesSerializationStrategy,
+    DeserializationStrategy,
     SerializationStrategy,
-} from '../../serialization';
+} from '../../';
+import { Attributes, AttributeType } from '../../../types/attribute';
 import { AttributeStrategy } from '../attribute';
 
 export class BasicAttributes implements AttributeStrategy {
     private attributes: Attributes;
     private serializer: SerializationStrategy;
+    private deserializer: DeserializationStrategy;
 
-    constructor(serializer: SerializationStrategy) {
+    constructor(
+        deserializer: DeserializationStrategy,
+        serializer: SerializationStrategy,
+    ) {
+        this.setDeserializer(deserializer);
         this.setSerializer(serializer);
         this.attributes = {};
     }
@@ -34,11 +41,21 @@ export class BasicAttributes implements AttributeStrategy {
     }
 
     public serialize(): any {
-        return this.serializer.serialize<Attributes>(this.attributes);
+        return this.serializer.serialize(this.attributes);
+    }
+
+    public deserialize(payload: any): BasicAttributes {
+        this.deserializer.deserialize(this, payload);
+
+        return this;
     }
 
     public setSerializer(serializer: SerializationStrategy): void {
         this.serializer = serializer;
+    }
+
+    public setDeserializer(deserializer: DeserializationStrategy): void {
+        this.deserializer = deserializer;
     }
 
     public dispose() {
@@ -47,6 +64,7 @@ export class BasicAttributes implements AttributeStrategy {
 
     static create(): BasicAttributes {
         return new BasicAttributes(
+            BasicAttributesDeserializationStrategy.create(),
             BasicAttributesSerializationStrategy.create(),
         );
     }

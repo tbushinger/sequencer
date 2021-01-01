@@ -41,4 +41,30 @@ describe('entity/base/entity', () => {
             assert.deepEqual(expected, result);
         });
     });
+
+    describe('deserialize', () => {
+        it('should return default serialized structure', () => {
+            const input = {
+                schema: {
+                    name: type,
+                },
+                state: {
+                    value,
+                }
+            }
+
+            entity.deserialize(input);
+            const result = entity.serialize();
+            const expected = {
+                schema: {
+                    name: type,
+                },
+                state: {
+                    value,
+                }
+            }
+
+            assert.deepEqual(expected, result);
+        });
+    });
 });

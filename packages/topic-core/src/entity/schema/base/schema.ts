@@ -1,21 +1,22 @@
 import {
     AttributeStrategy,
     BasicAttributes,
+    Deserializeable,
     Disposable,
     Serializeable,
 } from '../../../';
 
 export const BaseSchemaKeys = {
-    name: "name",
+    name: 'name',
 };
 
-export class BaseSchema implements Disposable, Serializeable {
+export class BaseSchema implements Deserializeable, Disposable, Serializeable {
     private attributes: AttributeStrategy;
 
     constructor(attributes: AttributeStrategy, name?: string) {
         this.setAttributeStrategy(attributes);
 
-        this.attributes.set(BaseSchemaKeys.name, "string", name);
+        this.attributes.set(BaseSchemaKeys.name, 'string', name);
     }
 
     public getName(): string | undefined {
@@ -32,6 +33,12 @@ export class BaseSchema implements Disposable, Serializeable {
 
     public serialize(): any {
         return this.attributes.serialize();
+    }
+
+    public deserialize(payload: any): BaseSchema {
+        this.attributes.deserialize(payload);
+
+        return this;
     }
 
     public dispose() {

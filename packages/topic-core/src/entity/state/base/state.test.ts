@@ -41,6 +41,24 @@ describe('entity/state/base', () => {
         });
     });
 
+    describe('deserialize', () => {
+        it('should return serialized attributes', () => {     
+            const input: any = {
+                value,
+                other: "other",
+            };
+
+            state.deserialize(input);
+            const result: any = state.serialize();
+            const expected: any = {
+                value,
+                other: "other",
+            };
+
+            assert.deepEqual(result, expected);
+        });
+    });
+
     describe('dispose', () => {
         it('should properly dispose', () => {     
             state.dispose();

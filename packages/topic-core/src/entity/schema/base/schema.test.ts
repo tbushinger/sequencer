@@ -41,6 +41,25 @@ describe('entity/schema/base', () => {
         });
     });
 
+    describe('deserialize', () => {
+        it('should return should property attributes', () => {
+            const input: any = {
+                name,
+                other: 'other',
+            };
+
+            schema.deserialize(input);
+            const result = schema.serialize();
+            
+            const expected: any = {
+                name,
+                other: 'other',
+            };
+
+            assert.deepEqual(result, expected);
+        });
+    });
+
     describe('dispose', () => {
         it('should properly dispose', () => {
             schema.dispose();
