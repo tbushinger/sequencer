@@ -1,31 +1,45 @@
 import { has } from 'lodash';
 import {
+    Attributes,
+    AttributeStrategy,
+    AttributeType,
     BasicAttributesDeserializationStrategy,
     BasicAttributesSerializationStrategy,
+    BasicKeyValueObservableStrategy,
     DeserializationStrategy,
+    Observable,
+    ObservableStrategy,
     SerializationStrategy,
-} from '../../';
-import { Attributes, AttributeType } from '../../../types/attribute';
-import { AttributeStrategy } from '../attribute';
+    SubscriptionHandler,
+    Unsubscribe,
+} from '../../../';
 
-export class BasicAttributes implements AttributeStrategy {
+export class BasicAttributes implements AttributeStrategy, Observable {
     private attributes: Attributes;
     private serializer: SerializationStrategy;
     private deserializer: DeserializationStrategy;
+    private events: ObservableStrategy;
 
     constructor(
         deserializer: DeserializationStrategy,
         serializer: SerializationStrategy,
+        eventStrategy: ObservableStrategy,
     ) {
         this.setDeserializer(deserializer);
         this.setSerializer(serializer);
+        this.setObservableStrategy(eventStrategy);
         this.attributes = {};
     }
 
-    public set(name: string, type: AttributeType, value: any): BasicAttributes {
+    public set(name: string, type: AttributeType, value: any): void {
         this.attributes[name] = { type, value };
 
-        return this;
+        this.events.emit(name, {
+            target: {
+                value,
+                name,
+            },
+        });
     }
 
     public has(name: string): boolean {
@@ -58,14 +72,24 @@ export class BasicAttributes implements AttributeStrategy {
         this.deserializer = deserializer;
     }
 
+    public setObservableStrategy(eventStrategy: ObservableStrategy): void {
+        this.events = eventStrategy;
+    }
+
+    public subscribe(key: string, handler: SubscriptionHandler): Unsubscribe {
+        return this.events.subscribe(key, handler);
+    }
+
     public dispose() {
         this.attributes = {};
+        this.events.dispose();
     }
 
     static create(): BasicAttributes {
         return new BasicAttributes(
             BasicAttributesDeserializationStrategy.create(),
             BasicAttributesSerializationStrategy.create(),
+            BasicKeyValueObservableStrategy.create(),
         );
     }
 }

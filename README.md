@@ -2,8 +2,9 @@
 
 # TODO
  * core
-   - deserialize
    - observable
+   - setter (setIn)
+   - getter (getIn)
  * entities
    - primative
    - map

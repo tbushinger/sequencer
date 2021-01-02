@@ -1,14 +1,20 @@
-import { BaseSchema, BaseState } from "..";
 import {
+    BaseSchema,
+    BaseState,
     Deserializeable,
     Disposable,
-    Serializeable
-} from "../..";
+    Serializeable,
+    Observable,
+    SubscriptionHandler,
+    Unsubscribe,
+} from "../../";
+
+export type BaseEntitySection = "state" | "schema";
 
 export type BaseEntitySerializer = (schema: BaseSchema, state: BaseState) => any;
 export type BaseEntityDeserializer = (schema: BaseSchema, state: BaseState, payload: any) => any;
 
-export class BaseEntity implements Deserializeable, Disposable, Serializeable {
+export class BaseEntity implements Deserializeable, Disposable, Observable, Serializeable {
     private schema: BaseSchema;
     private state: BaseState;
     private serializer: BaseEntitySerializer;
@@ -59,6 +65,17 @@ export class BaseEntity implements Deserializeable, Disposable, Serializeable {
             this.getSchema(),
             this.getState(),
         );
+    }
+
+    public subscribe(
+        eventName: BaseEntitySection,
+        handler: SubscriptionHandler,
+    ): Unsubscribe {
+        if (eventName === "schema") {
+            return this.getSchema().subscribe("*", handler);
+        } else {
+            return this.getState().subscribe("*", handler);
+        }
     }
 
     dispose(): void {

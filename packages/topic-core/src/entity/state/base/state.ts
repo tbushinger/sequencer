@@ -3,14 +3,27 @@ import {
     BasicAttributes,
     Deserializeable,
     Disposable,
+    Observable,
     Serializeable,
+    SubscriptionHandler,
+    Unsubscribe,
 } from '../../..';
 
 export const BaseStateKeys = {
     value: 'value',
 };
 
-export class BaseState implements Deserializeable, Disposable, Serializeable {
+export type BaseStateEventData = {
+    key: string;
+    value: any;
+};
+
+export class BaseState
+    implements
+        Deserializeable,
+        Disposable,
+        Observable,
+        Serializeable {
     private attributes: AttributeStrategy;
 
     constructor(attributes: AttributeStrategy, value?: any) {
@@ -45,6 +58,13 @@ export class BaseState implements Deserializeable, Disposable, Serializeable {
         this.attributes.deserialize(payload);
 
         return this;
+    }
+
+    public subscribe(
+        eventName: string,
+        handler: SubscriptionHandler,
+    ): Unsubscribe {
+        return this.attributes.subscribe(eventName, handler);
     }
 
     public dispose() {

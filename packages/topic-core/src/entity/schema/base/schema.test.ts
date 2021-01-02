@@ -60,6 +60,20 @@ describe('entity/schema/base', () => {
         });
     });
 
+    describe('subscribe', () => {
+        it('should fire event with proper payload', (done) => {
+            const expected: any = { target: { value: "someValue", name: "myObservedKey" } };
+
+            const unsub = schema.subscribe("myObservedKey", (event) => {
+                assert.deepEqual(event, expected);
+                unsub();
+                done();
+            })
+
+            schema.getAttributes().set('myObservedKey', 'string', 'someValue');
+        });
+    });
+
     describe('dispose', () => {
         it('should properly dispose', () => {
             schema.dispose();

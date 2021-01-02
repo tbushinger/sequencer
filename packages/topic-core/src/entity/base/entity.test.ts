@@ -67,4 +67,44 @@ describe('entity/base/entity', () => {
             assert.deepEqual(expected, result);
         });
     });
+
+    describe('subscribe', () => {
+        it('should fire schema event with proper payload', (done) => {
+            const expected: any = { target: { value: "someValue", name: "myObservedKey" } };
+
+            const unsub = entity.subscribe("schema", (event) => {
+                if (event.target.name === "myObservedKey") {
+                    assert.deepEqual(event, expected);
+                    unsub();
+                    done();
+                }
+            })
+
+            entity.getSchema().getAttributes().set('myObservedKey', 'string', 'someValue');
+        });
+
+        it('should fire state event with proper payload', (done) => {
+            const expected: any = { target: { value: "someValue", name: "myObservedKey" } };
+
+            const unsub = entity.subscribe("state", (event) => {
+                if (event.target.name === "myObservedKey") {
+                    assert.deepEqual(event, expected);
+                    unsub();
+                    done();
+                }
+            })
+
+            entity.getState().getAttributes().set('myObservedKey', 'string', 'someValue');
+        });
+    });
+
+    describe('dispose', () => {
+        it('should properly dispose', () => {
+            entity.dispose();
+
+            const result = entity.getSchema();
+
+            assert.isUndefined(result);
+        });
+    });
 });

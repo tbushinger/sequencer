@@ -59,6 +59,20 @@ describe('entity/state/base', () => {
         });
     });
 
+    describe('subscribe', () => {
+        it('should fire event with proper payload', (done) => {
+            const expected: any = { target: { value: "someValue", name: "myObservedKey" } };
+
+            const unsub = state.subscribe("myObservedKey", (event) => {
+                assert.deepEqual(event, expected);
+                unsub();
+                done();
+            })
+
+            state.getAttributes().set('myObservedKey', 'string', 'someValue');
+        });
+    });
+
     describe('dispose', () => {
         it('should properly dispose', () => {     
             state.dispose();
