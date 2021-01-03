@@ -3,7 +3,7 @@ import { BaseEntity } from './entity';
 
 describe('entity/base/entity', () => {
     const type = 'MyEntity';
-    const value = "myValue";
+    const value = 'myValue';
     const entity: BaseEntity = BaseEntity.createBaseEntity(type, value);
 
     describe('object', () => {
@@ -35,8 +35,8 @@ describe('entity/base/entity', () => {
                 },
                 state: {
                     value,
-                }
-            }
+                },
+            };
 
             assert.deepEqual(expected, result);
         });
@@ -50,8 +50,8 @@ describe('entity/base/entity', () => {
                 },
                 state: {
                     value,
-                }
-            }
+                },
+            };
 
             entity.deserialize(input);
             const result = entity.serialize();
@@ -61,40 +61,66 @@ describe('entity/base/entity', () => {
                 },
                 state: {
                     value,
-                }
-            }
+                },
+            };
 
             assert.deepEqual(expected, result);
         });
     });
 
     describe('subscribe', () => {
-        it('should fire schema event with proper payload', (done) => {
-            const expected: any = { target: { value: "someValue", name: "myObservedKey" } };
+        it('should fire schema event with proper payload', done => {
+            const expected: any = {
+                target: { value: 'someValue', name: 'myObservedKey' },
+            };
 
-            const unsub = entity.subscribe("schema", (event) => {
-                if (event.target.name === "myObservedKey") {
+            const unsub = entity.subscribe('schema', event => {
+                if (event.target.name === 'myObservedKey') {
                     assert.deepEqual(event, expected);
                     unsub();
                     done();
                 }
-            })
+            });
 
-            entity.getSchema().getAttributes().set('myObservedKey', 'string', 'someValue');
+            entity
+                .getSchema()
+                .getAttributes()
+                .set('myObservedKey', 'string', 'someValue');
         });
 
-        it('should fire state event with proper payload', (done) => {
-            const expected: any = { target: { value: "someValue", name: "myObservedKey" } };
+        it('should fire state event with proper payload', done => {
+            const expected: any = {
+                target: { value: 'someValue', name: 'myObservedKey' },
+            };
 
-            const unsub = entity.subscribe("state", (event) => {
-                if (event.target.name === "myObservedKey") {
-                    assert.deepEqual(event, expected);
-                    unsub();
-                    done();
-                }
-            })
+            const unsub = entity.subscribe('state.myObservedKey', event => {
+                assert.deepEqual(event, expected);
+                unsub();
+                done();
+            });
 
-            entity.getState().getAttributes().set('myObservedKey', 'string', 'someValue');
+            entity
+                .getState()
+                .getAttributes()
+                .set('myObservedKey', 'string', 'someValue');
+        });
+    });
+
+    describe('get/set', () => {
+        it('should properly set/get schema value', () => {
+            entity.set(['schema', 'mySchemaKey'], 'mySchemaValue');
+
+            const result = entity.get('schema.mySchemaKey');
+
+            assert.equal(result, 'mySchemaValue');
+        });
+
+        it('should properly set/get state value', () => {
+            entity.set(['state', 'myStateKey'], 'myStateValue');
+
+            const result = entity.get('state.myStateKey');
+
+            assert.equal(result, 'myStateValue');
         });
     });
 

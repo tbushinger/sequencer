@@ -74,6 +74,16 @@ describe('entity/schema/base', () => {
         });
     });
 
+    describe("set/get", () => {
+        it("should properly set and get a value", () => {
+            schema.set("myKey", "myValue");
+
+            const result = schema.get("myKey");
+
+            assert.equal(result, "myValue");
+        })
+    })
+
     describe('dispose', () => {
         it('should properly dispose', () => {
             schema.dispose();

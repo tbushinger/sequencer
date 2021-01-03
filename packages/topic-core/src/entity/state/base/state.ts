@@ -4,9 +4,12 @@ import {
     Deserializeable,
     Disposable,
     Observable,
+    Path,
+    Readable,
     Serializeable,
     SubscriptionHandler,
     Unsubscribe,
+    Writeable,
 } from '../../..';
 
 export const BaseStateKeys = {
@@ -23,7 +26,9 @@ export class BaseState
         Deserializeable,
         Disposable,
         Observable,
-        Serializeable {
+        Readable,
+        Serializeable,
+        Writeable {
     private attributes: AttributeStrategy;
 
     constructor(attributes: AttributeStrategy, value?: any) {
@@ -65,6 +70,18 @@ export class BaseState
         handler: SubscriptionHandler,
     ): Unsubscribe {
         return this.attributes.subscribe(eventName, handler);
+    }
+
+    public get(key: Path): any {
+        const path: string = key as string;
+
+        return this.getAttributes().get(path);
+    }
+
+    public set(key: Path, value: any): any {
+        const path: string = key as string;
+
+        this.getAttributes().set(path, 'any', value);
     }
 
     public dispose() {

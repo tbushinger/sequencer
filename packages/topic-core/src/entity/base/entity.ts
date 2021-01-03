@@ -3,18 +3,35 @@ import {
     BaseState,
     Deserializeable,
     Disposable,
-    Serializeable,
     Observable,
+    Path,
+    PathPart,
+    Readable,
+    Serializeable,
     SubscriptionHandler,
+    toPath,
     Unsubscribe,
-} from "../../";
+    Writeable,
+} from '../../';
 
-export type BaseEntitySection = "state" | "schema";
+export type BaseEntitySerializer = (
+    schema: BaseSchema,
+    state: BaseState,
+) => any;
+export type BaseEntityDeserializer = (
+    schema: BaseSchema,
+    state: BaseState,
+    payload: any,
+) => any;
 
-export type BaseEntitySerializer = (schema: BaseSchema, state: BaseState) => any;
-export type BaseEntityDeserializer = (schema: BaseSchema, state: BaseState, payload: any) => any;
-
-export class BaseEntity implements Deserializeable, Disposable, Observable, Serializeable {
+export class BaseEntity
+    implements
+        Deserializeable,
+        Disposable,
+        Observable,
+        Readable,
+        Serializeable,
+        Writeable {
     private schema: BaseSchema;
     private state: BaseState;
     private serializer: BaseEntitySerializer;
@@ -51,30 +68,59 @@ export class BaseEntity implements Deserializeable, Disposable, Observable, Seri
     }
 
     deserialize(payload: any): BaseEntity {
-        this.deserializer(
-            this.getSchema(),
-            this.getState(),
-            payload,
-        );
+        this.deserializer(this.getSchema(), this.getState(), payload);
 
         return this;
     }
 
     serialize(): any {
-        return this.serializer(
-            this.getSchema(),
-            this.getState(),
-        );
+        return this.serializer(this.getSchema(), this.getState());
     }
 
-    public subscribe(
-        eventName: BaseEntitySection,
-        handler: SubscriptionHandler,
-    ): Unsubscribe {
-        if (eventName === "schema") {
-            return this.getSchema().subscribe("*", handler);
+    public subscribe(path: string, handler: SubscriptionHandler): Unsubscribe {
+        const pathParts: PathPart[] = toPath(path);
+        const [type, key = '*'] = pathParts;
+
+        if (type === 'schema') {
+            return this.getSchema().subscribe(key as string, handler);
         } else {
-            return this.getState().subscribe("*", handler);
+            return this.getState().subscribe(key as string, handler);
+        }
+    }
+
+    public set(path: Path, value: any): void {
+        const pathParts: PathPart[] = toPath(path);
+        if (pathParts.length < 2) {
+            return;
+        }
+
+        const [type, key] = pathParts;
+        if (type === 'schema') {
+            this.getSchema()
+                .getAttributes()
+                .set(key as string, 'any', value);
+        } else {
+            this.getState()
+                .getAttributes()
+                .set(key as string, 'any', value);
+        }
+    }
+
+    public get(path: Path): any {
+        const pathParts: PathPart[] = toPath(path);
+        if (pathParts.length < 2) {
+            return;
+        }
+
+        const [type, key] = pathParts;
+        if (type === 'schema') {
+            return this.getSchema()
+                .getAttributes()
+                .get(key as string);
+        } else {
+            return this.getState()
+                .getAttributes()
+                .get(key as string);
         }
     }
 
@@ -86,10 +132,7 @@ export class BaseEntity implements Deserializeable, Disposable, Observable, Seri
         (this.serializer as any) = undefined;
     }
 
-    static createBaseEntity(
-        type: string,
-        initialValue: any,
-    ) {
+    static createBaseEntity(type: string, initialValue: any) {
         return new BaseEntity(
             BaseSchema.createBaseSchema(type),
             BaseState.createBaseState(initialValue),
@@ -105,8 +148,8 @@ export class BaseEntity implements Deserializeable, Disposable, Observable, Seri
                 return {
                     schema: schema.serialize(),
                     state: state.serialize(),
-                }
-            }
-        )
+                };
+            },
+        );
     }
 }

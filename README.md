@@ -2,9 +2,7 @@
 
 # TODO
  * core
-   - observable
-   - setter (setIn)
-   - getter (getIn)
+   - validator
  * entities
    - primative
    - map
