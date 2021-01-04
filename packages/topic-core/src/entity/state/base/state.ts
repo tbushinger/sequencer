@@ -13,7 +13,9 @@ import {
 } from '../../..';
 
 export const BaseStateKeys = {
-    value: 'value',
+    value: "value",
+    valid: "valid",
+    message: "message",
 };
 
 export type BaseStateEventData = {
@@ -35,6 +37,8 @@ export class BaseState
         this.attributes = attributes;
 
         this.setValue(value);
+        this.attributes.set(BaseStateKeys.valid, "boolean", true);
+        this.attributes.set(BaseStateKeys.message, "string", null);
     }
 
     public getValue(): any {

@@ -14,6 +14,7 @@ import {
 
 export const BaseSchemaKeys = {
     name: 'name',
+    required: 'required',
 };
 
 export type BaseSchemaEventData = {
@@ -35,6 +36,7 @@ export class BaseSchema
         this.setAttributeStrategy(attributes);
 
         this.attributes.set(BaseSchemaKeys.name, 'string', name);
+        this.attributes.set(BaseSchemaKeys.required, "boolean", false);
     }
 
     public getName(): string | undefined {

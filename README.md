@@ -2,7 +2,11 @@
 
 # TODO
  * core
+   - state transformers
+     * transformable
+     * strategy
    - validator
+   - transactions (no triggering)
  * entities
    - primative
    - map

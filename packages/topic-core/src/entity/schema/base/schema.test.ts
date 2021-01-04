@@ -35,6 +35,7 @@ describe('entity/schema/base', () => {
             const expected: any = {
                 name,
                 other: 'other',
+                required: false,
             };
 
             assert.deepEqual(result, expected);
@@ -54,6 +55,7 @@ describe('entity/schema/base', () => {
             const expected: any = {
                 name,
                 other: 'other',
+                required: false,
             };
 
             assert.deepEqual(result, expected);

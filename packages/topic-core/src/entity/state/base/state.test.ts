@@ -35,6 +35,8 @@ describe('entity/state/base', () => {
             const expected: any = {
                 value,
                 other: 'other',
+                valid: true,
+                message: null,
             };
 
             assert.deepEqual(result, expected);
@@ -53,6 +55,8 @@ describe('entity/state/base', () => {
             const expected: any = {
                 value,
                 other: 'other',
+                valid: true,
+                message: null,
             };
 
             assert.deepEqual(result, expected);

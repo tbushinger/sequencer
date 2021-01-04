@@ -32,9 +32,12 @@ describe('entity/base/entity', () => {
             const expected = {
                 schema: {
                     name: type,
+                    required: false,
                 },
                 state: {
                     value,
+                    valid: true,
+                    message: null,
                 },
             };
 
@@ -58,9 +61,12 @@ describe('entity/base/entity', () => {
             const expected = {
                 schema: {
                     name: type,
+                    required: false,
                 },
                 state: {
                     value,
+                    valid: true,
+                    message: null,
                 },
             };
 
@@ -121,6 +127,41 @@ describe('entity/base/entity', () => {
             const result = entity.get('state.myStateKey');
 
             assert.equal(result, 'myStateValue');
+        });
+    });
+
+    describe('execute - validate', () => {
+        it('state have proper invalid attributes', done => {
+
+            const unsub = entity.subscribe('state.valid', () => {
+                const result: any = entity.getState().getAttributes().serialize();
+
+                assert.equal(result.valid, false);
+                assert.equal(result.message, "MyEntity is required.");
+
+                unsub();
+                done();
+            });
+
+            entity.getSchema().getAttributes().set("required", "boolean", true);
+            entity.getState().setValue(null);
+            entity.execute("validate");
+        });
+
+        it('state have proper valid attributes', done => {
+            const unsub = entity.subscribe('state.valid', () => {
+                const result: any = entity.getState().getAttributes().serialize();
+
+                assert.equal(result.valid, true);
+                assert.equal(result.message, null);
+
+                unsub();
+                done();
+            });
+
+            entity.getSchema().getAttributes().set("required", "boolean", true);
+            entity.getState().setValue("my Value");
+            entity.execute("validate");
         });
     });
 
