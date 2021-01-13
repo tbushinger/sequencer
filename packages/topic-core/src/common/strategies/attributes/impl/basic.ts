@@ -1,4 +1,4 @@
-import { has } from 'lodash';
+import { has, last } from 'lodash';
 import {
     Attributes,
     AttributeStrategy,
@@ -6,15 +6,16 @@ import {
     BasicAttributesDeserializationStrategy,
     BasicAttributesSerializationStrategy,
     BasicKeyValueObservableStrategy,
+    BulkItem,
+    BulkItems,
     DeserializationStrategy,
-    Observable,
     ObservableStrategy,
     SerializationStrategy,
     SubscriptionHandler,
     Unsubscribe,
 } from '../../../';
 
-export class BasicAttributes implements AttributeStrategy, Observable {
+export class BasicAttributes implements AttributeStrategy {
     private attributes: Attributes;
     private serializer: SerializationStrategy;
     private deserializer: DeserializationStrategy;
@@ -31,13 +32,48 @@ export class BasicAttributes implements AttributeStrategy, Observable {
         this.attributes = {};
     }
 
-    public set(name: string, type: AttributeType, value: any): void {
+    private _upsert(
+        name: string,
+        value: any,
+        type: AttributeType = 'any',
+    ): void {
+        if (this.has(name)) {
+            this.attributes[name].value = value;
+        }
+
+        this.setWithType(name, type, value);
+    }
+
+    public setWithType(name: string, type: AttributeType, value: any): void {
         this.attributes[name] = { type, value };
+    }
+
+    public set(name: string, value: any): void {
+        this._upsert(name, value);
 
         this.events.emit(name, {
             target: {
                 value,
                 name,
+            },
+        });
+    }
+
+    public setMany(items: BulkItems): any {
+        if (!items.length) {
+            return;
+        }
+
+        items.forEach((item: BulkItem) => {
+            const { path, value, type } = item;
+            this._upsert(path as string, value, type);
+        });
+
+        const { path, value } = last(items) as BulkItem;
+        this.events.emit(path as string, {
+            target: {
+                value,
+                name: path as string,
             },
         });
     }
@@ -76,8 +112,8 @@ export class BasicAttributes implements AttributeStrategy, Observable {
         this.events = eventStrategy;
     }
 
-    public subscribe(key: string, handler: SubscriptionHandler): Unsubscribe {
-        return this.events.subscribe(key, handler);
+    public subscribe(name: string, handler: SubscriptionHandler): Unsubscribe {
+        return this.events.subscribe(name, handler);
     }
 
     public dispose() {

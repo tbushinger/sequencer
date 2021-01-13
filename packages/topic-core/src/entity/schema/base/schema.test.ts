@@ -11,21 +11,15 @@ describe('entity/schema/base', () => {
         });
     });
 
-    describe('getName', () => {
-        it('should return name', () => {
-            assert.equal(schema.getName(), name);
-        });
-    });
-
     describe('attributes', () => {
         it('should get attribute', () => {
-            assert.equal(schema.getAttributes().get('name'), name);
+            assert.equal(schema.get('name'), name);
         });
 
         it('should set attribute', () => {
-            schema.getAttributes().set('other', 'string', 'other');
+            schema.set('other', 'other');
 
-            assert.equal(schema.getAttributes().get('other'), 'other');
+            assert.equal(schema.get('other'), 'other');
         });
     });
 
@@ -51,7 +45,7 @@ describe('entity/schema/base', () => {
 
             schema.deserialize(input);
             const result = schema.serialize();
-            
+
             const expected: any = {
                 name,
                 other: 'other',
@@ -63,36 +57,34 @@ describe('entity/schema/base', () => {
     });
 
     describe('subscribe', () => {
-        it('should fire event with proper payload', (done) => {
-            const expected: any = { target: { value: "someValue", name: "myObservedKey" } };
+        it('should fire event with proper payload', done => {
+            const expected: any = {
+                target: { value: 'someValue', name: 'myObservedKey' },
+            };
 
-            const unsub = schema.subscribe("myObservedKey", (event) => {
+            const unsub = schema.subscribe('myObservedKey', event => {
                 assert.deepEqual(event, expected);
                 unsub();
                 done();
-            })
+            });
 
-            schema.getAttributes().set('myObservedKey', 'string', 'someValue');
+            schema.set('myObservedKey', 'someValue');
         });
     });
 
-    describe("set/get", () => {
-        it("should properly set and get a value", () => {
-            schema.set("myKey", "myValue");
+    describe('set/get', () => {
+        it('should properly set and get a value', () => {
+            schema.set('myKey', 'myValue');
 
-            const result = schema.get("myKey");
+            const result = schema.get('myKey');
 
-            assert.equal(result, "myValue");
-        })
-    })
+            assert.equal(result, 'myValue');
+        });
+    });
 
     describe('dispose', () => {
         it('should properly dispose', () => {
             schema.dispose();
-
-            const result = schema.getAttributes();
-
-            assert.isUndefined(result);
         });
     });
 });

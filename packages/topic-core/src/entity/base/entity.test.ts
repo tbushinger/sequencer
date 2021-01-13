@@ -14,14 +14,14 @@ describe('entity/base/entity', () => {
 
     describe('getSchema', () => {
         it('should return name', () => {
-            const result = entity.getSchema().getName();
+            const result = entity.getSchema().get("name");
             assert.equal(type, result);
         });
     });
 
     describe('getState', () => {
         it('should return value', () => {
-            const result = entity.getState().getValue();
+            const result = entity.get("value");
             assert.equal(value, result);
         });
     });
@@ -80,7 +80,7 @@ describe('entity/base/entity', () => {
                 target: { value: 'someValue', name: 'myObservedKey' },
             };
 
-            const unsub = entity.subscribe('schema', event => {
+            const unsub = entity.getSchema().subscribe('*', event => {
                 if (event.target.name === 'myObservedKey') {
                     assert.deepEqual(event, expected);
                     unsub();
@@ -90,8 +90,7 @@ describe('entity/base/entity', () => {
 
             entity
                 .getSchema()
-                .getAttributes()
-                .set('myObservedKey', 'string', 'someValue');
+                .set('myObservedKey', 'someValue');
         });
 
         it('should fire state event with proper payload', done => {
@@ -99,7 +98,7 @@ describe('entity/base/entity', () => {
                 target: { value: 'someValue', name: 'myObservedKey' },
             };
 
-            const unsub = entity.subscribe('state.myObservedKey', event => {
+            const unsub = entity.subscribe('myObservedKey', event => {
                 assert.deepEqual(event, expected);
                 unsub();
                 done();
@@ -107,24 +106,15 @@ describe('entity/base/entity', () => {
 
             entity
                 .getState()
-                .getAttributes()
-                .set('myObservedKey', 'string', 'someValue');
+                .set('myObservedKey', 'someValue');
         });
     });
 
     describe('get/set', () => {
-        it('should properly set/get schema value', () => {
-            entity.set(['schema', 'mySchemaKey'], 'mySchemaValue');
-
-            const result = entity.get('schema.mySchemaKey');
-
-            assert.equal(result, 'mySchemaValue');
-        });
-
         it('should properly set/get state value', () => {
-            entity.set(['state', 'myStateKey'], 'myStateValue');
+            entity.set('myStateKey', 'myStateValue');
 
-            const result = entity.get('state.myStateKey');
+            const result = entity.get('myStateKey');
 
             assert.equal(result, 'myStateValue');
         });
@@ -133,8 +123,8 @@ describe('entity/base/entity', () => {
     describe('execute - validate', () => {
         it('state have proper invalid attributes', done => {
 
-            const unsub = entity.subscribe('state.valid', () => {
-                const result: any = entity.getState().getAttributes().serialize();
+            const unsub = entity.subscribe('valid', () => {
+                const result: any = entity.getState().serialize();
 
                 assert.equal(result.valid, false);
                 assert.equal(result.message, "MyEntity is required.");
@@ -143,14 +133,14 @@ describe('entity/base/entity', () => {
                 done();
             });
 
-            entity.getSchema().getAttributes().set("required", "boolean", true);
-            entity.getState().setValue(null);
+            entity.getSchema().set("required", true);
+            entity.getState().set("value", null);
             entity.execute("validate");
         });
 
         it('state have proper valid attributes', done => {
-            const unsub = entity.subscribe('state.valid', () => {
-                const result: any = entity.getState().getAttributes().serialize();
+            const unsub = entity.subscribe('valid', () => {
+                const result: any = entity.getState().serialize();
 
                 assert.equal(result.valid, true);
                 assert.equal(result.message, null);
@@ -159,8 +149,8 @@ describe('entity/base/entity', () => {
                 done();
             });
 
-            entity.getSchema().getAttributes().set("required", "boolean", true);
-            entity.getState().setValue("my Value");
+            entity.getSchema().set("required", true);
+            entity.set("value", "my Value");
             entity.execute("validate");
         });
     });

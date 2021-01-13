@@ -1,18 +1,24 @@
 import {
     AttributeType,
+    BulkWriteable,
     Deserializeable,
     Disposable,
     Observable,
+    Path,
+    Readable,
     Serializeable,
+    Writeable,
 } from '../../';
 
 export interface AttributeStrategy
-    extends Deserializeable,
+    extends BulkWriteable,
+        Deserializeable,
         Disposable,
         Observable,
-        Serializeable {
-    set: (name: string, type: AttributeType, value: any) => void;
-    has: (name: string) => boolean;
-    get: (name: string) => any | undefined;
-    getType: (name: string) => AttributeType | undefined;
+        Readable,
+        Serializeable,
+        Writeable {
+    setWithType: (name: Path, type: AttributeType, value: any) => void;
+    has: (name: Path) => boolean;
+    getType: (name: Path) => AttributeType | undefined;
 }

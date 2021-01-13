@@ -1,6 +1,8 @@
 import {
     AttributeStrategy,
     BasicAttributes,
+    BulkItems,
+    BulkWriteable,
     Deserializeable,
     Disposable,
     Observable,
@@ -13,9 +15,9 @@ import {
 } from '../../..';
 
 export const BaseStateKeys = {
-    value: "value",
-    valid: "valid",
-    message: "message",
+    value: 'value',
+    valid: 'valid',
+    message: 'message',
 };
 
 export type BaseStateEventData = {
@@ -25,6 +27,7 @@ export type BaseStateEventData = {
 
 export class BaseState
     implements
+        BulkWriteable,
         Deserializeable,
         Disposable,
         Observable,
@@ -36,27 +39,11 @@ export class BaseState
     constructor(attributes: AttributeStrategy, value?: any) {
         this.attributes = attributes;
 
-        this.setValue(value);
-        this.attributes.set(BaseStateKeys.valid, "boolean", true);
-        this.attributes.set(BaseStateKeys.message, "string", null);
-    }
-
-    public getValue(): any {
-        return this.attributes.get(BaseStateKeys.value);
-    }
-
-    public setValue(value: any): BaseState {
-        this.attributes.set(BaseStateKeys.value, 'any', value);
-
-        return this;
-    }
-
-    public getAttributes(): AttributeStrategy {
-        return this.attributes;
-    }
-
-    public setAttributeStrategy(attributes: AttributeStrategy) {
-        this.attributes = attributes;
+        this.setMany([
+            { path: BaseStateKeys.valid, value: true, type: 'boolean' },
+            { path: BaseStateKeys.message, value: null, type: 'string' },
+            { path: BaseStateKeys.value, value },
+        ]);
     }
 
     public serialize(): any {
@@ -69,23 +56,20 @@ export class BaseState
         return this;
     }
 
-    public subscribe(
-        eventName: string,
-        handler: SubscriptionHandler,
-    ): Unsubscribe {
-        return this.attributes.subscribe(eventName, handler);
+    public subscribe(name: string, handler: SubscriptionHandler): Unsubscribe {
+        return this.attributes.subscribe(name, handler);
     }
 
-    public get(key: Path): any {
-        const path: string = key as string;
-
-        return this.getAttributes().get(path);
+    public get(name: Path): any {
+        return this.attributes.get(name);
     }
 
-    public set(key: Path, value: any): any {
-        const path: string = key as string;
+    public set(name: Path, value: any): any {
+        this.attributes.set(name, value);
+    }
 
-        this.getAttributes().set(path, 'any', value);
+    public setMany(items: BulkItems): any {
+        this.attributes.setMany(items);
     }
 
     public dispose() {

@@ -1,14 +1,13 @@
 # sequencer
 
 # TODO
- * core
-   - state transformers
-     * transformable
-     * strategy
-   - validator
-   - transactions (no triggering)
  * entities
    - primative
+     - date
+     - text (pattern validation)
+     - number
+     - boolean
+     - computed (executor for calculation)
    - map
    - list
    - tree

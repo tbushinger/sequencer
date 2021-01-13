@@ -11,21 +11,15 @@ describe('entity/state/base', () => {
         });
     });
 
-    describe('getValue', () => {
-        it('should return value', () => {
-            assert.equal(state.getValue(), value);
-        });
-    });
-
     describe('attributes', () => {
         it('should get attribute', () => {
-            assert.equal(state.getAttributes().get('value'), value);
+            assert.equal(state.get('value'), value);
         });
 
         it('should set attribute', () => {
-            state.getAttributes().set('other', 'string', 'other');
+            state.set('other', 'other');
 
-            assert.equal(state.getAttributes().get('other'), 'other');
+            assert.equal(state.get('other'), 'other');
         });
     });
 
@@ -75,7 +69,7 @@ describe('entity/state/base', () => {
                 done();
             });
 
-            state.getAttributes().set('myObservedKey', 'string', 'someValue');
+            state.set('myObservedKey', 'someValue');
         });
     });
 
@@ -92,10 +86,6 @@ describe('entity/state/base', () => {
     describe('dispose', () => {
         it('should properly dispose', () => {
             state.dispose();
-
-            const result = state.getAttributes();
-
-            assert.isUndefined(result);
         });
     });
 });

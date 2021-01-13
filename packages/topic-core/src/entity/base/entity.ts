@@ -1,10 +1,9 @@
 import {
-    AttributeStrategy,
     BaseSchema,
-    BaseSchemaKeys,
     BaseState,
-    BaseStateKeys,
     BasicExecuteableStrategy,
+    BulkItems,
+    BulkWriteable,
     Command,
     Deserializeable,
     Disposable,
@@ -13,11 +12,9 @@ import {
     isNil,
     Observable,
     Path,
-    PathPart,
     Readable,
     Serializeable,
     SubscriptionHandler,
-    toPath,
     Unsubscribe,
     Writeable,
 } from '../../';
@@ -39,6 +36,7 @@ export const BaseEntityCommands = {
 
 export class BaseEntity
     implements
+        BulkWriteable,
         Deserializeable,
         Disposable,
         Executeable,
@@ -61,8 +59,8 @@ export class BaseEntity
     ) {
         this.schema = schema;
         this.state = state;
-        this.setDeserializer(deserializer);
-        this.setSerializer(serializer);
+        this.deserializer = deserializer;
+        this.serializer = serializer;
         this.executeableStrategy = executeableStrategy;
     }
 
@@ -74,24 +72,7 @@ export class BaseEntity
         return this.state;
     }
 
-    public setDeserializer(deserializer: BaseEntityDeserializer): BaseEntity {
-        this.deserializer = deserializer;
-        return this;
-    }
-
-    public setSerializer(serializer: BaseEntitySerializer): BaseEntity {
-        this.serializer = serializer;
-        return this;
-    }
-
-    public setExecuteableStrategy(
-        executeableStrategy: ExecuteableStrategy,
-    ): BaseEntity {
-        this.executeableStrategy = executeableStrategy;
-        return this;
-    }
-
-    public getExecuteableStrategy(): ExecuteableStrategy {
+    public executeables(): ExecuteableStrategy {
         return this.executeableStrategy;
     }
 
@@ -106,50 +87,19 @@ export class BaseEntity
     }
 
     public subscribe(path: string, handler: SubscriptionHandler): Unsubscribe {
-        const pathParts: PathPart[] = toPath(path);
-        const [type, key = '*'] = pathParts;
-
-        if (type === 'schema') {
-            return this.getSchema().subscribe(key as string, handler);
-        } else {
-            return this.getState().subscribe(key as string, handler);
-        }
+        return this.getState().subscribe(path, handler);
     }
 
     public set(path: Path, value: any): void {
-        const pathParts: PathPart[] = toPath(path);
-        if (pathParts.length < 2) {
-            return;
-        }
+        this.getState().set(path, value);
+    }
 
-        const [type, key] = pathParts;
-        if (type === 'schema') {
-            this.getSchema()
-                .getAttributes()
-                .set(key as string, 'any', value);
-        } else {
-            this.getState()
-                .getAttributes()
-                .set(key as string, 'any', value);
-        }
+    public setMany(items: BulkItems): any {
+        this.getState().setMany(items);
     }
 
     public get(path: Path): any {
-        const pathParts: PathPart[] = toPath(path);
-        if (pathParts.length < 2) {
-            return;
-        }
-
-        const [type, key] = pathParts;
-        if (type === 'schema') {
-            return this.getSchema()
-                .getAttributes()
-                .get(key as string);
-        } else {
-            return this.getState()
-                .getAttributes()
-                .get(key as string);
-        }
+        return this.getState().get(path);
     }
 
     public execute(commandName: string): void {
@@ -188,30 +138,25 @@ export class BaseEntity
         );
 
         const validateCommand: Command = (e: BaseEntity) => {
-            const schemaAttrs: AttributeStrategy = e
-                .getSchema()
-                .getAttributes();
-            const stateAttrs: AttributeStrategy = e.getState().getAttributes();
-            const required: boolean = schemaAttrs.get(BaseSchemaKeys.required);
-            const value: any = stateAttrs.get(BaseStateKeys.value);
+            const required: boolean = e.getSchema().get('required');
+            const value: any = e.get('value');
 
-            // TODO: add some type of transaction to turn off update notifications
             if (required && isNil(value)) {
-                const name = e.getSchema().getName();
-                stateAttrs.set(
-                    BaseStateKeys.message,
-                    'string',
-                    `${name} is required.`,
-                );
-                stateAttrs.set(BaseStateKeys.valid, 'boolean', false);
+                const name = e.getSchema().get('name');
+                e.setMany([
+                    { path: 'message', value: `${name} is required.` },
+                    { path: 'valid', value: false },
+                ]);
             } else {
-                stateAttrs.set(BaseStateKeys.message, 'string', null);
-                stateAttrs.set(BaseStateKeys.valid, 'boolean', true);
+                e.setMany([
+                    { path: 'message', value: null },
+                    { path: 'valid', value: true },
+                ]);
             }
         };
 
         entity
-            .getExecuteableStrategy()
+            .executeables()
             .addCommand(BaseEntityCommands.validate, validateCommand);
 
         return entity;

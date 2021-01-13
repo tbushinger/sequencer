@@ -1,6 +1,8 @@
 import {
     AttributeStrategy,
     BasicAttributes,
+    BulkItems,
+    BulkWriteable,
     Deserializeable,
     Disposable,
     Observable,
@@ -9,7 +11,7 @@ import {
     Serializeable,
     SubscriptionHandler,
     Unsubscribe,
-    Writeable
+    Writeable,
 } from '../../../';
 
 export const BaseSchemaKeys = {
@@ -24,6 +26,7 @@ export type BaseSchemaEventData = {
 
 export class BaseSchema
     implements
+        BulkWriteable,
         Deserializeable,
         Disposable,
         Observable,
@@ -33,22 +36,12 @@ export class BaseSchema
     private attributes: AttributeStrategy;
 
     constructor(attributes: AttributeStrategy, name?: string) {
-        this.setAttributeStrategy(attributes);
-
-        this.attributes.set(BaseSchemaKeys.name, 'string', name);
-        this.attributes.set(BaseSchemaKeys.required, "boolean", false);
-    }
-
-    public getName(): string | undefined {
-        return this.attributes.get(BaseSchemaKeys.name);
-    }
-
-    public getAttributes(): AttributeStrategy {
-        return this.attributes;
-    }
-
-    public setAttributeStrategy(attributes: AttributeStrategy) {
         this.attributes = attributes;
+
+        this.setMany([
+            { path: BaseSchemaKeys.required, value: false, type: 'boolean' },
+            { path: BaseSchemaKeys.name, value: name, type: 'string' },
+        ]);
     }
 
     public serialize(): any {
@@ -68,16 +61,16 @@ export class BaseSchema
         return this.attributes.subscribe(eventName, handler);
     }
 
-    public get(key: Path): any {
-        const path: string = key as string;
-
-        return this.getAttributes().get(path);
+    public get(name: Path): any {
+        return this.attributes.get(name);
     }
 
-    public set(key: Path, value: any): any {
-        const path: string = key as string;
+    public set(name: Path, value: any): any {
+        this.attributes.set(name, value);
+    }
 
-        this.getAttributes().set(path, 'any', value);
+    public setMany(items: BulkItems): any {
+        this.attributes.setMany(items);
     }
 
     public dispose() {
