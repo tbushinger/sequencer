@@ -28,6 +28,7 @@ describe('entity/schema/base', () => {
             const result: any = schema.serialize();
             const expected: any = {
                 name,
+                defaultValue: null,
                 other: 'other',
                 required: false,
             };
@@ -48,6 +49,7 @@ describe('entity/schema/base', () => {
 
             const expected: any = {
                 name,
+                defaultValue: null,
                 other: 'other',
                 required: false,
             };

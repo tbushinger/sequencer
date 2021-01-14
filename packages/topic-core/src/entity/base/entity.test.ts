@@ -14,14 +14,14 @@ describe('entity/base/entity', () => {
 
     describe('getSchema', () => {
         it('should return name', () => {
-            const result = entity.getSchema().get("name");
+            const result = entity.getSchema().get('name');
             assert.equal(type, result);
         });
     });
 
     describe('getState', () => {
         it('should return value', () => {
-            const result = entity.get("value");
+            const result = entity.get('value');
             assert.equal(value, result);
         });
     });
@@ -31,6 +31,7 @@ describe('entity/base/entity', () => {
             const result = entity.serialize();
             const expected = {
                 schema: {
+                    defaultValue: null,
                     name: type,
                     required: false,
                 },
@@ -60,6 +61,7 @@ describe('entity/base/entity', () => {
             const result = entity.serialize();
             const expected = {
                 schema: {
+                    defaultValue: null,
                     name: type,
                     required: false,
                 },
@@ -88,9 +90,7 @@ describe('entity/base/entity', () => {
                 }
             });
 
-            entity
-                .getSchema()
-                .set('myObservedKey', 'someValue');
+            entity.getSchema().set('myObservedKey', 'someValue');
         });
 
         it('should fire state event with proper payload', done => {
@@ -104,9 +104,7 @@ describe('entity/base/entity', () => {
                 done();
             });
 
-            entity
-                .getState()
-                .set('myObservedKey', 'someValue');
+            entity.getState().set('myObservedKey', 'someValue');
         });
     });
 
@@ -122,20 +120,19 @@ describe('entity/base/entity', () => {
 
     describe('execute - validate', () => {
         it('state have proper invalid attributes', done => {
-
             const unsub = entity.subscribe('valid', () => {
                 const result: any = entity.getState().serialize();
 
                 assert.equal(result.valid, false);
-                assert.equal(result.message, "MyEntity is required.");
+                assert.equal(result.message, 'MyEntity is required.');
 
                 unsub();
                 done();
             });
 
-            entity.getSchema().set("required", true);
-            entity.getState().set("value", null);
-            entity.execute("validate");
+            entity.getSchema().set('required', true);
+            entity.getState().set('value', null);
+            entity.execute('validate');
         });
 
         it('state have proper valid attributes', done => {
@@ -149,9 +146,23 @@ describe('entity/base/entity', () => {
                 done();
             });
 
-            entity.getSchema().set("required", true);
-            entity.set("value", "my Value");
-            entity.execute("validate");
+            entity.getSchema().set('required', true);
+            entity.set('value', 'my Value');
+            entity.execute('validate');
+        });
+    });
+
+    describe('execute - iniital value', () => {
+        it('state should have value set', () => {
+            entity.getSchema().set('defaultValue', 'Some Text');
+            entity.set('value', null);
+
+            entity.execute('initialize');
+
+            assert.equal(
+                entity.get('value'),
+                entity.getSchema().get('defaultValue'),
+            );
         });
     });
 

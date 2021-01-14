@@ -2,11 +2,15 @@
 
 # TODO
  * entities
+   - state/schema - default value (applied on validation)
+   - move command to separate files
+   - ability to temp disable observables from firing
+   - schema - name, description - update validator function
    - primative
-     - date
      - text (pattern validation)
      - number
      - boolean
+     - date (internal epoc)
      - computed (executor for calculation)
    - map
    - list

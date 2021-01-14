@@ -1,6 +1,9 @@
+import { isNull, isUndefined } from 'lodash';
 import {
     BaseSchema,
+    BaseSchemaKeys,
     BaseState,
+    BaseStateKeys,
     BasicExecuteableStrategy,
     BulkItems,
     BulkWriteable,
@@ -32,6 +35,7 @@ export type BaseEntityDeserializer = (
 
 export const BaseEntityCommands = {
     validate: 'validate',
+    initialize: 'initialize',
 };
 
 export class BaseEntity
@@ -138,26 +142,49 @@ export class BaseEntity
         );
 
         const validateCommand: Command = (e: BaseEntity) => {
-            const required: boolean = e.getSchema().get('required');
-            const value: any = e.get('value');
+            const required: boolean = e
+                .getSchema()
+                .get(BaseSchemaKeys.required);
+            const value: any = e.get(BaseStateKeys.value);
 
+            let message: string | null = null;
+            let valid: boolean = true;
             if (required && isNil(value)) {
-                const name = e.getSchema().get('name');
-                e.setMany([
-                    { path: 'message', value: `${name} is required.` },
-                    { path: 'valid', value: false },
-                ]);
-            } else {
-                e.setMany([
-                    { path: 'message', value: null },
-                    { path: 'valid', value: true },
-                ]);
+                const name = e.getSchema().get(BaseSchemaKeys.name);
+                message = `${name} is required.`;
+                valid = false;
             }
+
+            e.setMany([
+                { path: BaseStateKeys.message, value: message },
+                { path: BaseStateKeys.valid, value: valid },
+            ]);
+        };
+
+        const initializeCommand: Command = (e: BaseEntity) => {
+            const defaultValue: any = e
+                .getSchema()
+                .get(BaseSchemaKeys.defaultValue);
+            const value: any = e.get(BaseStateKeys.value);
+
+            if (
+                isNull(defaultValue) ||
+                isUndefined(defaultValue) ||
+                !isNull(value)
+            ) {
+                return;
+            }
+
+            e.set(BaseStateKeys.value, defaultValue);
         };
 
         entity
             .executeables()
             .addCommand(BaseEntityCommands.validate, validateCommand);
+
+        entity
+            .executeables()
+            .addCommand(BaseEntityCommands.initialize, initializeCommand);
 
         return entity;
     }

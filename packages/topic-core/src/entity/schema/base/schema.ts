@@ -17,6 +17,7 @@ import {
 export const BaseSchemaKeys = {
     name: 'name',
     required: 'required',
+    defaultValue: 'defaultValue',
 };
 
 export type BaseSchemaEventData = {
@@ -41,6 +42,7 @@ export class BaseSchema
         this.setMany([
             { path: BaseSchemaKeys.required, value: false, type: 'boolean' },
             { path: BaseSchemaKeys.name, value: name, type: 'string' },
+            { path: BaseSchemaKeys.defaultValue, value: null, type: 'any' },
         ]);
     }
 
