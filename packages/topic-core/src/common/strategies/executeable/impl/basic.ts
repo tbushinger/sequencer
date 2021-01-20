@@ -6,20 +6,24 @@ export class BasicExecuteableStrategy implements ExecuteableStrategy {
         [commandName: string]: Command;
     } = {};
 
-    public addCommand(commandName: string, command: Command): void {
+    public addCommand(commandName: string, command: Command): BasicExecuteableStrategy {
         this.commands[commandName] = command;
+
+        return this;
     }
 
     public getCommand(commandName: string): Command {
         return this.commands[commandName];
     }
 
-    public execute(commandName: string, input: any): void {
+    public execute(commandName: string, input: any): any {
         const command: Command | undefined = this.commands[commandName];
 
         if (command) {
-            command(input);
+            return command(input);
         }
+
+        return undefined;
     }
 
     public dispose(): void {

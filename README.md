@@ -2,8 +2,6 @@
 
 # TODO
  * entities
-   - state/schema - default value (applied on validation)
-   - move command to separate files
    - ability to temp disable observables from firing
    - schema - name, description - update validator function
    - primative

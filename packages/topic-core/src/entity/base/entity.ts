@@ -1,18 +1,13 @@
-import { isNull, isUndefined } from 'lodash';
 import {
     BaseSchema,
-    BaseSchemaKeys,
     BaseState,
-    BaseStateKeys,
     BasicExecuteableStrategy,
     BulkItems,
     BulkWriteable,
-    Command,
     Deserializeable,
     Disposable,
     Executeable,
     ExecuteableStrategy,
-    isNil,
     Observable,
     Path,
     Readable,
@@ -21,6 +16,7 @@ import {
     Unsubscribe,
     Writeable,
 } from '../../';
+import { deserialize, initialize, serialize, validate } from './commands';
 
 export type BaseEntitySerializer = (
     schema: BaseSchema,
@@ -36,6 +32,8 @@ export type BaseEntityDeserializer = (
 export const BaseEntityCommands = {
     validate: 'validate',
     initialize: 'initialize',
+    deserialize: 'deserialize',
+    serialize: 'serialize',
 };
 
 export class BaseEntity
@@ -50,21 +48,15 @@ export class BaseEntity
         Writeable {
     private schema: BaseSchema;
     private state: BaseState;
-    private serializer: BaseEntitySerializer;
-    private deserializer: BaseEntityDeserializer;
     private executeableStrategy: ExecuteableStrategy;
 
     constructor(
         schema: BaseSchema,
         state: BaseState,
-        deserializer: BaseEntityDeserializer,
-        serializer: BaseEntitySerializer,
         executeableStrategy: ExecuteableStrategy,
     ) {
         this.schema = schema;
         this.state = state;
-        this.deserializer = deserializer;
-        this.serializer = serializer;
         this.executeableStrategy = executeableStrategy;
     }
 
@@ -81,13 +73,13 @@ export class BaseEntity
     }
 
     deserialize(payload: any): BaseEntity {
-        this.deserializer(this.getSchema(), this.getState(), payload);
+        (this.execute(BaseEntityCommands.deserialize) as any)(payload);
 
         return this;
     }
 
     serialize(): any {
-        return this.serializer(this.getSchema(), this.getState());
+        return (this.execute(BaseEntityCommands.serialize) as any)();
     }
 
     public subscribe(path: string, handler: SubscriptionHandler): Unsubscribe {
@@ -106,8 +98,8 @@ export class BaseEntity
         return this.getState().get(path);
     }
 
-    public execute(commandName: string): void {
-        this.executeableStrategy.execute(commandName, this);
+    public execute(commandName: string): any {
+        return this.executeableStrategy.execute(commandName, this);
     }
 
     public dispose(): void {
@@ -116,7 +108,6 @@ export class BaseEntity
         this.executeableStrategy.dispose();
         (this.schema as any) = undefined;
         (this.state as any) = undefined;
-        (this.serializer as any) = undefined;
         (this.executeableStrategy as any) = undefined;
     }
 
@@ -124,67 +115,15 @@ export class BaseEntity
         const entity = new BaseEntity(
             BaseSchema.createBaseSchema(type),
             BaseState.createBaseState(initialValue),
-            (schema, state, payload) => {
-                if (payload.schema) {
-                    schema.deserialize(payload.schema);
-                }
-                if (payload.state) {
-                    state.deserialize(payload.state);
-                }
-            },
-            (schema, state) => {
-                return {
-                    schema: schema.serialize(),
-                    state: state.serialize(),
-                };
-            },
             BasicExecuteableStrategy.create(),
         );
 
-        const validateCommand: Command = (e: BaseEntity) => {
-            const required: boolean = e
-                .getSchema()
-                .get(BaseSchemaKeys.required);
-            const value: any = e.get(BaseStateKeys.value);
-
-            let message: string | null = null;
-            let valid: boolean = true;
-            if (required && isNil(value)) {
-                const name = e.getSchema().get(BaseSchemaKeys.name);
-                message = `${name} is required.`;
-                valid = false;
-            }
-
-            e.setMany([
-                { path: BaseStateKeys.message, value: message },
-                { path: BaseStateKeys.valid, value: valid },
-            ]);
-        };
-
-        const initializeCommand: Command = (e: BaseEntity) => {
-            const defaultValue: any = e
-                .getSchema()
-                .get(BaseSchemaKeys.defaultValue);
-            const value: any = e.get(BaseStateKeys.value);
-
-            if (
-                isNull(defaultValue) ||
-                isUndefined(defaultValue) ||
-                !isNull(value)
-            ) {
-                return;
-            }
-
-            e.set(BaseStateKeys.value, defaultValue);
-        };
-
         entity
             .executeables()
-            .addCommand(BaseEntityCommands.validate, validateCommand);
-
-        entity
-            .executeables()
-            .addCommand(BaseEntityCommands.initialize, initializeCommand);
+            .addCommand(BaseEntityCommands.validate, validate)
+            .addCommand(BaseEntityCommands.initialize, initialize)
+            .addCommand(BaseEntityCommands.deserialize, deserialize)
+            .addCommand(BaseEntityCommands.serialize, serialize);
 
         return entity;
     }
