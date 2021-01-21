@@ -21,4 +21,5 @@ export interface AttributeStrategy
     setWithType: (name: Path, type: AttributeType, value: any) => void;
     has: (name: Path) => boolean;
     getType: (name: Path) => AttributeType | undefined;
+    enableEvents: (enable: boolean) => void;
 }

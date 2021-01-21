@@ -20,6 +20,7 @@ export class BasicAttributes implements AttributeStrategy {
     private serializer: SerializationStrategy;
     private deserializer: DeserializationStrategy;
     private events: ObservableStrategy;
+    private eventsEnabled: boolean;
 
     constructor(
         deserializer: DeserializationStrategy,
@@ -30,6 +31,7 @@ export class BasicAttributes implements AttributeStrategy {
         this.setSerializer(serializer);
         this.setObservableStrategy(eventStrategy);
         this.attributes = {};
+        this.eventsEnabled = true;
     }
 
     private _upsert(
@@ -51,12 +53,14 @@ export class BasicAttributes implements AttributeStrategy {
     public set(name: string, value: any): void {
         this._upsert(name, value);
 
-        this.events.emit(name, {
-            target: {
-                value,
-                name,
-            },
-        });
+        if (this.eventsEnabled) {
+            this.events.emit(name, {
+                target: {
+                    value,
+                    name,
+                },
+            });
+        }
     }
 
     public setMany(items: BulkItems): any {
@@ -70,12 +74,15 @@ export class BasicAttributes implements AttributeStrategy {
         });
 
         const { path, value } = last(items) as BulkItem;
-        this.events.emit(path as string, {
-            target: {
-                value,
-                name: path as string,
-            },
-        });
+
+        if (this.eventsEnabled) {
+            this.events.emit(path as string, {
+                target: {
+                    value,
+                    name: path as string,
+                },
+            });
+        }
     }
 
     public has(name: string): boolean {
@@ -114,6 +121,10 @@ export class BasicAttributes implements AttributeStrategy {
 
     public subscribe(name: string, handler: SubscriptionHandler): Unsubscribe {
         return this.events.subscribe(name, handler);
+    }
+
+    public enableEvents(enable: boolean): void {
+        this.eventsEnabled = enable;
     }
 
     public dispose() {

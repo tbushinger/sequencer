@@ -8,6 +8,6 @@ export function initialize(e: BaseEntity) {
     if (isNull(defaultValue) || isUndefined(defaultValue) || !isNull(value)) {
         return;
     }
-
+    
     e.set(BaseStateKeys.value, defaultValue);
 }

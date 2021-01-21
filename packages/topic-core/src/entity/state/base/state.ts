@@ -72,6 +72,10 @@ export class BaseState
         this.attributes.setMany(items);
     }
 
+    public enableEvents(enable: boolean): void {
+        this.attributes.enableEvents(enable);
+    }
+
     public dispose() {
         this.attributes.dispose();
         (this.attributes as any) = undefined;
